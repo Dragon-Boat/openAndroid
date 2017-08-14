@@ -1,6 +1,5 @@
 package com.sundae.zl.openandroid.fragment;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,7 +21,7 @@ import java.util.List;
 
 public class SwapAdapterDemoFragment extends BaseUtilFragment {
 
-	public static Fragment instance() {
+	public static SwapAdapterDemoFragment instance() {
 		return new SwapAdapterDemoFragment();
 	}
 

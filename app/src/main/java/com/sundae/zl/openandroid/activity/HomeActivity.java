@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.sundae.zl.openandroid.R;
+import com.sundae.zl.openandroid.fragment.MultiTypeFragment;
 import com.sundae.zl.openandroid.fragment.SwapAdapterDemoFragment;
 import com.sundae.zl.openandroid.fragment.WebViewDemoFragment;
 
@@ -16,7 +17,7 @@ public class HomeActivity extends BaseUtilActivity implements View.OnClickListen
 		$(R.id.swapAdapter).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				getFragmentManager().beginTransaction()
+				getSupportFragmentManager().beginTransaction()
 						.add(android.R.id.content, SwapAdapterDemoFragment.instance(), "")
 						.addToBackStack("").commit();
 			}
@@ -25,8 +26,17 @@ public class HomeActivity extends BaseUtilActivity implements View.OnClickListen
 		$(R.id.webViewAndJs).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				getFragmentManager().beginTransaction()
+				getSupportFragmentManager().beginTransaction()
 						.add(android.R.id.content, WebViewDemoFragment.instance(), "")
+						.addToBackStack("").commit();
+			}
+		});
+
+		$(R.id.multiTypeDemo).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getSupportFragmentManager().beginTransaction()
+						.add(android.R.id.content, MultiTypeFragment.instance(), "")
 						.addToBackStack("").commit();
 			}
 		});

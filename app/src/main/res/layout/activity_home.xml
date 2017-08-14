@@ -30,6 +30,14 @@
 				android:layout_gravity="center_horizontal"
 				android:text="webView And Js"
 				android:textAllCaps="false"/>
+
+			<Button
+				android:id="@+id/multiTypeDemo"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:text="recyclerView multiType"
+				android:textAllCaps="false"/>
 		</LinearLayout>
 
 
