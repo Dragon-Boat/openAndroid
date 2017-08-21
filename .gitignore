@@ -53,3 +53,9 @@ google-services.json
 freeline.py
 freeline/
 freeline_project_description.json
+
+vcs.xml
+app/libs/
+app/src/main/res/drawable/
+sample/libs/
+sample/src/main/res/drawable/

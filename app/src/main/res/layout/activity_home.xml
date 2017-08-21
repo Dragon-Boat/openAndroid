@@ -17,27 +17,27 @@
 
 			<Button
 				android:id="@+id/swapAdapter"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_horizontal"
+				style="@style/normal_button"
 				android:text="demo for swapAdapter"
-				android:textAllCaps="false"/>
+				/>
 
 			<Button
 				android:id="@+id/webViewAndJs"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_horizontal"
+				style="@style/normal_button"
 				android:text="webView And Js"
-				android:textAllCaps="false"/>
+				/>
 
 			<Button
 				android:id="@+id/multiTypeDemo"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_horizontal"
-				android:text="recyclerView multiType"
-				android:textAllCaps="false"/>
+				style="@style/normal_button"
+				android:text="recyclerView multiType"/>
+
+			<Button
+				android:id="@+id/dataBindingDemo"
+				style="@style/normal_button"
+				android:text="dataBinding"
+				/>
+
 		</LinearLayout>
 
 
