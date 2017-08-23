@@ -1,4 +1,4 @@
-package com.sundae.zl.openandroid.fragment;
+package com.sundae.zl.openandroid.fragment.multiTypeDemo;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,6 +14,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.sundae.zl.openandroid.R;
+import com.sundae.zl.openandroid.fragment.BaseUtilFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import me.drakeet.multitype.ItemViewBinder;
 import me.drakeet.multitype.Items;
@@ -24,7 +28,7 @@ import me.drakeet.multitype.MultiTypeAdapter;
  * # Copyright 2017 netease. All rights reserved.
  */
 
-public class MultiTypeFragment extends BaseUtilFragment{
+public class MultiTypeFragment extends BaseUtilFragment {
 	RecyclerView recyclerView;
 	MultiTypeAdapter adapter;
 
@@ -45,6 +49,9 @@ public class MultiTypeFragment extends BaseUtilFragment{
 		initRecyclerView(recyclerView);
 		adapter = new MultiTypeAdapter();
 		adapter.register(Banner.class, new BannerViewBinder());
+		adapter.register(SectionViewBinder.Section.class, new SectionViewBinder());
+		adapter.register(ViewPagerItemBinder.ShopDiscount.class, new ViewPagerItemBinder());
+
 		recyclerView.setAdapter(adapter);
 
 		Banner banner = new Banner();
@@ -53,6 +60,41 @@ public class MultiTypeFragment extends BaseUtilFragment{
 		banner.linkUrl = "";
 		Items items = new Items();
 		items.add(banner);
+
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+				super.onScrollStateChanged(recyclerView, newState);
+			}
+
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+				super.onScrolled(recyclerView, dx, dy);
+			}
+		});
+
+		SectionViewBinder.Section section = new SectionViewBinder.Section();
+		section.title = "信用卡优惠";
+		section.location = "杭州";
+
+		SectionViewBinder.Section section2 = new SectionViewBinder.Section();
+		section2.title = "玩转信用卡";
+		section2.location = "";
+
+		items.add(section);
+		items.add(section2);
+
+		ViewPagerItemBinder.ShopDiscount shopDiscount = new ViewPagerItemBinder.ShopDiscount();
+		List<ViewPagerItemBinder.ShopInfo> infos = new ArrayList<>();
+		for (int i = 0; i < 80; i++) {
+			ViewPagerItemBinder.ShopInfo shopInfo = new ViewPagerItemBinder.ShopInfo();
+			shopInfo.name = "海底捞 : " + i;
+			infos.add(shopInfo);
+		}
+		shopDiscount.shopName = infos;
+		items.add(shopDiscount);
+
+
 		adapter.setItems(items);
 		adapter.notifyDataSetChanged();
 	}
@@ -60,6 +102,7 @@ public class MultiTypeFragment extends BaseUtilFragment{
 	private void initRecyclerView(RecyclerView recyclerView) {
 		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 	}
+
 
 	class Banner{
 		String content;

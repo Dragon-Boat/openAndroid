@@ -5,7 +5,7 @@ import android.view.View;
 
 import com.sundae.zl.openandroid.R;
 import com.sundae.zl.openandroid.fragment.DataBindingFragment;
-import com.sundae.zl.openandroid.fragment.MultiTypeFragment;
+import com.sundae.zl.openandroid.fragment.multiTypeDemo.MultiTypeFragment;
 import com.sundae.zl.openandroid.fragment.SwapAdapterDemoFragment;
 import com.sundae.zl.openandroid.fragment.WebViewDemoFragment;
 
