@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.sundae.zl.openandroid.R;
+import com.sundae.zl.openandroid.fragment.AgentWebFragment;
+import com.sundae.zl.openandroid.fragment.CoordinatorLayoutFragment;
 import com.sundae.zl.openandroid.fragment.DataBindingFragment;
 import com.sundae.zl.openandroid.fragment.multiTypeDemo.MultiTypeFragment;
 import com.sundae.zl.openandroid.fragment.SwapAdapterDemoFragment;
@@ -46,6 +48,22 @@ public class HomeActivity extends BaseUtilActivity implements View.OnClickListen
 			public void onClick(View v) {
 				getSupportFragmentManager().beginTransaction()
 						.add(android.R.id.content, DataBindingFragment.instance(), "")
+						.addToBackStack("").commit();
+			}
+		});
+		$(R.id.CoordinatorLayoutDemo).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getSupportFragmentManager().beginTransaction()
+						.add(android.R.id.content, CoordinatorLayoutFragment.instance(), "")
+						.addToBackStack("").commit();
+			}
+		});
+		$(R.id.AgentWebDemo).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getSupportFragmentManager().beginTransaction()
+						.add(android.R.id.content, AgentWebFragment.instance(), "")
 						.addToBackStack("").commit();
 			}
 		});

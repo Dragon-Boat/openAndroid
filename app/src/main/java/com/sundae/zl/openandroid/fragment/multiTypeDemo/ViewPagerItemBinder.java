@@ -27,11 +27,11 @@ import me.drakeet.multitype.ItemViewBinder;
 
 public class ViewPagerItemBinder extends ItemViewBinder<ViewPagerItemBinder.ShopDiscount,ViewPagerItemBinder.ViewPagerVH> {
 	public static class ShopDiscount implements Serializable{
-		List<ShopInfo> shopName;
+		public List<ShopInfo> shopName;
 
 	}
 	public static class ShopInfo{
-		String name;
+		public String name;
 	}
 
 	public class ViewPagerVH extends RecyclerView.ViewHolder {

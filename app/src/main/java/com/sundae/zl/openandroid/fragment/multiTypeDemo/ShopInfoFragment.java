@@ -18,21 +18,38 @@ import com.sundae.zl.openandroid.fragment.BaseFragment;
  * # Copyright 2017 netease. All rights reserved.
  */
 
-public class ShopInfoFragment extends BaseFragment {
+public class ShopInfoFragment extends BaseFragment{
 
 	ViewPagerItemBinder.ShopDiscount shopDiscount;
-	RecyclerView shopInfoRV;
-	RecyclerView.Adapter adapter;
-
 	public static Fragment instance(ViewPagerItemBinder.ShopDiscount shopDiscount) {
 		Bundle bundle = new Bundle();
-		bundle.putSerializable("key", shopDiscount);
+		bundle.putSerializable("key",shopDiscount);
 		ShopInfoFragment fragment = new ShopInfoFragment();
 		fragment.setArguments(bundle);
 		return fragment;
 	}
 
-	class BaseAdapter extends RecyclerView.Adapter {
+	@Nullable
+	@Override
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.shop_info_fragment, container, false);
+	}
+
+	RecyclerView shopInfoRV;
+	RecyclerView.Adapter adapter;
+	@Override
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		shopDiscount = (ViewPagerItemBinder.ShopDiscount) getArguments().getSerializable("key");
+		shopInfoRV = (RecyclerView) view.findViewById(R.id.shop_info_rv);
+		shopInfoRV.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+
+		adapter = new BaseAdapter(shopDiscount);
+
+		shopInfoRV.setAdapter(adapter);
+
+	}
+	class BaseAdapter extends RecyclerView.Adapter{
 		ViewPagerItemBinder.ShopDiscount shopDiscount;
 
 		public BaseAdapter(ViewPagerItemBinder.ShopDiscount shopDiscount) {
@@ -55,38 +72,17 @@ public class ShopInfoFragment extends BaseFragment {
 			return shopDiscount != null ? shopDiscount.shopName.size() : 0;
 		}
 	}
-
-	@Nullable
-	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.shop_info_fragment, container, false);
 	}
+	class BaseVH extends RecyclerView.ViewHolder{
 
-	@Override
-	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		shopDiscount = (ViewPagerItemBinder.ShopDiscount) getArguments().getSerializable("key");
-		shopInfoRV = (RecyclerView) view.findViewById(R.id.shop_info_rv);
-		shopInfoRV.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+		TextView textView;
+		public BaseVH(View itemView) {
+			super(itemView);
+			textView = ((TextView) itemView);
+		}
 
-		adapter = new BaseAdapter(shopDiscount);
-
-		shopInfoRV.setAdapter(adapter);
-
+		void render(ViewPagerItemBinder.ShopInfo shopInfo) {
+			textView.setText(shopInfo.name);
+		}
 	}
-}
-
-class BaseVH extends RecyclerView.ViewHolder {
-
-	TextView textView;
-
-	public BaseVH(View itemView) {
-		super(itemView);
-		textView = ((TextView) itemView);
-	}
-
-	void render(ViewPagerItemBinder.ShopInfo shopInfo) {
-		textView.setText(shopInfo.name);
-	}
-}
 

@@ -37,6 +37,17 @@
 				style="@style/normal_button"
 				android:text="dataBinding"
 				/>
+			<Button
+				android:id="@+id/CoordinatorLayoutDemo"
+				style="@style/normal_button"
+				android:text="CoordinatorLayout"
+				/>
+
+			<Button
+				android:id="@+id/AgentWebDemo"
+				style="@style/normal_button"
+				android:text="AgentWeb"
+				/>
 
 		</LinearLayout>
 
