@@ -49,6 +49,12 @@
 				android:text="AgentWeb"
 				/>
 
+			<Button
+				android:id="@+id/LocationDemo"
+				style="@style/normal_button"
+				android:text="Location"
+				/>
+
 		</LinearLayout>
 
 

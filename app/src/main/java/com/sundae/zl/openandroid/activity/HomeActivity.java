@@ -7,6 +7,7 @@ import com.sundae.zl.openandroid.R;
 import com.sundae.zl.openandroid.fragment.AgentWebFragment;
 import com.sundae.zl.openandroid.fragment.CoordinatorLayoutFragment;
 import com.sundae.zl.openandroid.fragment.DataBindingFragment;
+import com.sundae.zl.openandroid.fragment.LocationFragment;
 import com.sundae.zl.openandroid.fragment.multiTypeDemo.MultiTypeFragment;
 import com.sundae.zl.openandroid.fragment.SwapAdapterDemoFragment;
 import com.sundae.zl.openandroid.fragment.WebViewDemoFragment;
@@ -64,6 +65,15 @@ public class HomeActivity extends BaseUtilActivity implements View.OnClickListen
 			public void onClick(View v) {
 				getSupportFragmentManager().beginTransaction()
 						.add(android.R.id.content, AgentWebFragment.instance(), "")
+						.addToBackStack("").commit();
+			}
+		});
+
+		$(R.id.LocationDemo).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getSupportFragmentManager().beginTransaction()
+						.add(android.R.id.content, LocationFragment.instance(), "")
 						.addToBackStack("").commit();
 			}
 		});
