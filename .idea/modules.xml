@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mkitemdecoration/mkitemdecoration.iml" filepath="$PROJECT_DIR$/mkitemdecoration/mkitemdecoration.iml" />
       <module fileurl="file://$PROJECT_DIR$/openAndroid.iml" filepath="$PROJECT_DIR$/openAndroid.iml" />
     </modules>
   </component>
