@@ -11,7 +11,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.util.SparseArray;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * Created by @author hzzhoulong
@@ -27,6 +29,8 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 
 	private Builder builder;
 
+	private VHolder holder;
+
 	public MKItemDecoration(@NonNull Builder builder) {
 		this.builder = builder;
 		textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
@@ -40,13 +44,34 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 
 	}
 
+	public enum Type {
+		/**
+		 * 普通颜色分割线
+		 */
+		DIVIDER,
+		/**
+		 * 带文本的分组分割
+		 */
+		TEXT_HOVER,
+		/**
+		 * 自定义分组分割样式
+		 */
+		CUSTOM_HOVER,
+	}
+
 	public static class Builder {
+		public static final int ALIGN_LEFT = 0;
+		public static final int ALIGN_MIDDLE = 1;
+		public static final int ALIGN_RIGHT = 2;
 		// 整体高度
 		private int decorationHeight;
 		// 背景色
 		private int decorationColor;
 		// 分组悬停功能接口
 		private IHover iHover;
+
+		private AbstractViewModel viewModel;
+
 		// 分割线开始绘制的位置，一般等于头部数量
 		private int itemOffset;
 
@@ -54,10 +79,18 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 		private int textSize;
 		// 分组时显示的文本颜色
 		private int textColor;
-		// 分组时显示的文本距离左侧的距离
-		private int textLeftPadding;
+		// 分组时显示的文本距离最近一侧的距离2
+		private int textPaddingAbout;
+		// 文本在整个分割线中的位置，居左、居中、居右
+		private int textAlign;
 		// 自定义的背景drawable
 		private Drawable drawable;
+
+
+		public Builder viewModel(AbstractViewModel viewModel) {
+			this.viewModel = viewModel;
+			return this;
+		}
 
 		public Builder drawable(Drawable drawable) {
 			this.drawable = drawable;
@@ -66,6 +99,11 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 
 		public Builder height(int decorationHeight) {
 			this.decorationHeight = decorationHeight;
+			return this;
+		}
+
+		public Builder textAlign(int textAlign) {
+			this.textAlign = textAlign;
 			return this;
 		}
 
@@ -84,7 +122,7 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 			return this;
 		}
 
-		public Builder textSize( int textSize) {
+		public Builder textSize(int textSize) {
 			this.textSize = textSize;
 			return this;
 		}
@@ -94,8 +132,8 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 			return this;
 		}
 
-		public Builder textLeftPadding( int textLeftPadding) {
-			this.textLeftPadding = textLeftPadding;
+		public Builder textLeftPadding(int textLeftPadding) {
+			this.textPaddingAbout = textLeftPadding;
 			return this;
 		}
 
@@ -104,6 +142,29 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 		}
 
 
+	}
+
+	class VHolder extends RecyclerView.ViewHolder {
+
+		private SparseArray<View> views;
+
+		public VHolder(View view) {
+			super(view);
+			this.views = new SparseArray<>();
+		}
+
+		public <V extends View> V getView(int viewId) {
+			View view = views.get(viewId);
+			if (view == null) {
+				view = itemView.findViewById(viewId);
+				views.put(viewId, view);
+			}
+			return (V) view;
+		}
+
+		public View getRootView() {
+			return itemView;
+		}
 	}
 
 	@Override
@@ -115,16 +176,50 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 		// 目前只支持纵向
 		if (((LinearLayoutManager) parent.getLayoutManager()).getOrientation() == LinearLayoutManager.VERTICAL) {
 			drawVertical(c, parent);
+		} else {
+			// 暂时不支持
+			throw new RuntimeException("only LinearLayoutManager.VERTICAL is supported!");
 		}
 
 	}
 
 	private void drawVertical(Canvas c, RecyclerView parent) {
-		int bottom, top;
-		final int left = parent.getPaddingLeft();
-		final int right = parent.getWidth() - parent.getPaddingRight();
 
+		if (getType() == Type.CUSTOM_HOVER) {
+			drawCustomHovers(c, parent);
+		} else if (getType() == Type.TEXT_HOVER) {
+			drawTextHovers(c, parent);
+		} else {
+			drawDividers(c, parent);
+		}
+	}
+
+	private Type getType() {
+		if (builder.iHover != null) {
+			return builder.viewModel == null ? Type.TEXT_HOVER : Type.CUSTOM_HOVER;
+		}
+		return Type.DIVIDER;
+	}
+
+	private void drawCustomHovers(Canvas c, RecyclerView parent) {
 		int childCount = parent.getChildCount();
+
+		for (int i = 0; i < childCount; i++) {
+			final View childView = parent.getChildAt(i);
+			int position = parent.getChildAdapterPosition(childView);
+			// 跳过需要偏移的item
+			if (position < builder.itemOffset) {
+				continue;
+			}
+			if (builder.iHover.isGroup(position)) {
+				drawCustomHover(c, parent, childView, position);
+			}
+		}
+	}
+
+	private void drawTextHovers(Canvas c, RecyclerView parent) {
+		int childCount = parent.getChildCount();
+
 		for (int i = 0; i < childCount; i++) {
 			final View childView = parent.getChildAt(i);
 			int position = parent.getChildAdapterPosition(childView);
@@ -133,79 +228,123 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 			if (position < builder.itemOffset) {
 				continue;
 			}
-			if (builder.iHover == null) {
-				// 普通分割线时，最后一个item也跳过
-				if (position == parent.getAdapter().getItemCount() - 1) {
-					continue;
-				}
-				// 在item底部绘制一个指定分割线
-				top = childView.getBottom();
-				bottom = top + builder.decorationHeight;
-				mDivider.setBounds(left, top, right, bottom);
-				mDivider.draw(c);
-
-			} else {
-				// 分组时，在item顶部绘制
-				if (builder.iHover.isGroup(position)) {
-					bottom = childView.getTop();
-					top = bottom - builder.decorationHeight;
-					mDivider.setBounds(left, top, right, bottom);
-					mDivider.draw(c);
-					String text = builder.iHover.groupText(position);
-					if (!TextUtils.isEmpty(text)) {
-						Paint.FontMetrics fm = textPaint.getFontMetrics();
-						//文字竖直居中显示
-						float baseLine = bottom - (builder.decorationHeight - (fm.bottom - fm.top)) / 2 - fm.bottom;
-						c.drawText(text, left + builder.textLeftPadding, baseLine, textPaint);
-					}
-				}
+			// 分组时，在item顶部绘制
+			if (builder.iHover.isGroup(position)) {
+				// 绘制颜色背景
+				drawTextHover(c, parent, childView, position);
 			}
 		}
+	}
+
+	private void drawDividers(Canvas c, RecyclerView parent) {
+		int childCount = parent.getChildCount();
+		int bottom, top;
+		int left = parent.getPaddingLeft();
+		int right = parent.getWidth() - parent.getPaddingRight();
+
+		for (int i = 0; i < childCount; i++) {
+			final View childView = parent.getChildAt(i);
+			int position = parent.getChildAdapterPosition(childView);
+
+			// 跳过需要偏移的item
+			if (position < builder.itemOffset || position == parent.getAdapter().getItemCount() - 1) {
+				continue;
+			}
+			// 在item底部绘制一个指定分割线
+			top = childView.getBottom();
+			bottom = top + builder.decorationHeight;
+			mDivider.setBounds(left, top, right, bottom);
+			mDivider.draw(c);
+		}
+
+	}
+
+	private void drawCustomHover(Canvas c, RecyclerView parent, View childView, int position) {
+
+		if (this.holder != null) {
+			int top = childView.getTop() - builder.decorationHeight;
+			builder.viewModel.bindView(holder.itemView, position);
+			c.save();
+			c.translate(0, top);
+			holder.itemView.draw(c);
+			c.restore();
+		}
+	}
+
+	private void drawTextHover(Canvas c, RecyclerView parent, View childView, int position) {
+		int bottom;
+		final int left = parent.getPaddingLeft();
+		final int right = parent.getWidth() - parent.getPaddingRight();
+		int top;
+		int baseLine;
+		int textLeft;
+		bottom = childView.getTop();
+		top = bottom - builder.decorationHeight;
+		mDivider.setBounds(left, top, right, bottom);
+		mDivider.draw(c);
+
+		String text = builder.iHover.groupText(position);
+
+		if (!TextUtils.isEmpty(text)) {
+			baseLine = getBaseLine(textPaint, bottom);
+			textLeft = getTextLeft(parent, text, builder.textAlign, builder.textPaddingAbout);
+			c.drawText(text, textLeft, baseLine, textPaint);
+		}
+	}
+
+	private int getBaseLine(Paint paint, int bottom) {
+		int baseLine;
+		Paint.FontMetrics fm = paint.getFontMetrics();
+		baseLine = (int) (bottom - (builder.decorationHeight - (fm.bottom - fm.top)) / 2 - fm.bottom);
+		return baseLine;
+	}
+
+	private int getTextLeft(RecyclerView parent, String text, int textAlign, int textPaddingAbout) {
+		int textLeft;
+		float textWidth = textPaint.measureText(text, 0, text.length());
+		if (textAlign == Builder.ALIGN_MIDDLE) {
+			textLeft = (int) (parent.getPaddingLeft() + parent.getWidth() / 2 - textWidth / 2);
+		} else if (textAlign == Builder.ALIGN_RIGHT) {
+			textLeft = (int) (parent.getPaddingLeft() + parent.getWidth() - textWidth - textPaddingAbout);
+		} else {
+			textLeft = parent.getPaddingLeft() + textPaddingAbout;
+		}
+		return textLeft;
 	}
 
 	@Override
 	public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
 		super.onDrawOver(c, parent, state);
 
+		if (getType() == Type.DIVIDER) {
+			return;
+		}
 		// 只有需要分组功能时，才走以下逻辑
-		if (builder.iHover != null) {
-			int position = ((LinearLayoutManager) (parent.getLayoutManager())).findFirstVisibleItemPosition();
-			if (position <= -1 || position >= parent.getAdapter().getItemCount() - 1) {
-				// 越界检查
-				return;
-			}
-			// 寻找即将成为第一个可见item的child
-			View child = parent.findViewHolderForLayoutPosition(position + 1).itemView;
+		int position = ((LinearLayoutManager) (parent.getLayoutManager())).findFirstVisibleItemPosition();
+		if (position <= -1 || position >= parent.getAdapter().getItemCount() - 1) {
+			// 越界检查
+			return;
+		}
+		// 寻找即将成为第一个可见item的child
+		View child = parent.findViewHolderForLayoutPosition(position + 1).itemView;
 
-			boolean flag = false;
-			if (builder.iHover.isGroup(position + 1)) {
-				int dy = child.getTop() - builder.decorationHeight * 2;
-				// 分组栏移动效果
-				if (dy <= 0) {
-					c.save();
-					c.translate(0, dy);
-					flag = true;
-				}
+		boolean flag = false;
+		if (builder.iHover.isGroup(position + 1)) {
+			int dy = child.getTop() - builder.decorationHeight * 2;
+			// 分组栏移动效果
+			if (dy <= 0) {
+				c.save();
+				c.translate(0, dy);
+				flag = true;
 			}
-
-			int bottom, top;
-			final int left = parent.getPaddingLeft();
-			final int right = parent.getWidth() - parent.getPaddingRight();
-
-			top = parent.getPaddingTop();
-			bottom = top + builder.decorationHeight;
-			mDivider.setBounds(left, top, right, bottom);
-			mDivider.draw(c);
-			String text = builder.iHover.groupText(position);
-			if (!TextUtils.isEmpty(text)) {
-				Paint.FontMetrics fm = textPaint.getFontMetrics();
-				//文字竖直居中显示
-				float baseLine = bottom - (builder.decorationHeight - (fm.bottom - fm.top)) / 2 - fm.bottom;
-				c.drawText(text, left + builder.textLeftPadding, baseLine, textPaint);
-			}
-			if (flag) {
-				c.restore();
-			}
+		}
+		if (getType() == Type.CUSTOM_HOVER) {
+			drawCustomHover(c, parent, child, position);
+		} else {
+			drawTextHover(c, parent, child, position);
+		}
+		if (flag) {
+			c.restore();
 		}
 	}
 
@@ -214,24 +353,68 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 		super.getItemOffsets(outRect, view, parent, state);
 		int pos = parent.getChildAdapterPosition(view);
 
-		if (pos < builder.itemOffset) {
-			outRect.set(0, 0, 0, 0);
-			return;
-		}
-
-		if (builder.iHover == null) {
-			// 普通分割线不绘制最后一个item
-			if (pos == parent.getAdapter().getItemCount() - 1) {
-				outRect.set(0, 0, 0, 0);
-			} else {
-				outRect.set(0,0,0,builder.decorationHeight);
-			}
-		} else {
-			// 分组模式只在分组时才绘制
+		if (getType() == Type.TEXT_HOVER) {
 			if (builder.iHover.isGroup(pos)) {
 				outRect.set(0, builder.decorationHeight, 0, 0);
 			}
+			return;
+		}
+		if (getType() == Type.CUSTOM_HOVER) {
+			if (builder.iHover.isGroup(pos)) {
+				if (holder == null) {
+					holder = createVH(parent, builder.viewModel.view);
+				}
+				if (builder.decorationHeight > 0) {
+					outRect.set(0, builder.decorationHeight, 0, 0);
+				} else {
+					outRect.set(0, builder.viewModel.view.getHeight(), 0, 0);
+				}
+			}
+			return;
 		}
 
+		if (pos < builder.itemOffset || pos == parent.getAdapter().getItemCount() - 1) {
+			outRect.set(0, 0, 0, 0);
+		} else {
+			outRect.set(0, 0, 0, builder.decorationHeight);
+		}
+
+	}
+
+	private VHolder createVH(RecyclerView parent, View view) {
+
+		int toDrawWidthSpec;//用于测量的widthMeasureSpec
+		int toDrawHeightSpec;//用于测量的heightMeasureSpec
+		//拿到复杂布局的LayoutParams，如果为空，就new一个。
+		// 后面需要根据这个lp 构建toDrawWidthSpec，toDrawHeightSpec
+		ViewGroup.LayoutParams lp = view.getLayoutParams();
+		if (lp == null) {
+			//这里是根据复杂布局layout的width height，new一个Lp
+			lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+			view.setLayoutParams(lp);
+		}
+		if (lp.width == ViewGroup.LayoutParams.MATCH_PARENT) {
+			//如果是MATCH_PARENT，则用父控件能分配的最大宽度和EXACTLY构建MeasureSpec。
+			toDrawWidthSpec = View.MeasureSpec.makeMeasureSpec(parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight(), View.MeasureSpec.EXACTLY);
+		} else if (lp.width == ViewGroup.LayoutParams.WRAP_CONTENT) {
+			//如果是WRAP_CONTENT，则用父控件能分配的最大宽度和AT_MOST构建MeasureSpec。
+			toDrawWidthSpec = View.MeasureSpec.makeMeasureSpec(parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight(), View.MeasureSpec.AT_MOST);
+		} else {
+			//否则则是具体的宽度数值，则用这个宽度和EXACTLY构建MeasureSpec。
+			toDrawWidthSpec = View.MeasureSpec.makeMeasureSpec(lp.width, View.MeasureSpec.EXACTLY);
+		}
+		//高度同理
+		if (lp.height == ViewGroup.LayoutParams.MATCH_PARENT) {
+			toDrawHeightSpec = View.MeasureSpec.makeMeasureSpec(parent.getHeight() - parent.getPaddingTop() - parent.getPaddingBottom(), View.MeasureSpec.EXACTLY);
+		} else if (lp.height == ViewGroup.LayoutParams.WRAP_CONTENT) {
+			toDrawHeightSpec = View.MeasureSpec.makeMeasureSpec(parent.getHeight() - parent.getPaddingTop() - parent.getPaddingBottom(), View.MeasureSpec.AT_MOST);
+		} else {
+			toDrawHeightSpec = View.MeasureSpec.makeMeasureSpec(lp.height, View.MeasureSpec.EXACTLY);
+		}
+		view.measure(toDrawWidthSpec, toDrawHeightSpec);
+		view.layout(parent.getPaddingLeft(), parent.getPaddingTop(), parent.getPaddingLeft() + view.getMeasuredWidth(), parent.getPaddingTop() + view.getMeasuredHeight());
+		VHolder vHolder = new VHolder(view);
+		builder.decorationHeight = view.getMeasuredHeight();
+		return vHolder;
 	}
 }
