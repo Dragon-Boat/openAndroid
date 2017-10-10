@@ -212,7 +212,9 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 				continue;
 			}
 			if (builder.iHover.isGroup(position)) {
-				drawCustomHover(c, parent, childView, position);
+				int top = childView.getTop() - builder.decorationHeight;
+				int bottom = 0;
+				drawCustomHover(c, parent, top, bottom, position);
 			}
 		}
 	}
@@ -261,10 +263,9 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 
 	}
 
-	private void drawCustomHover(Canvas c, RecyclerView parent, View childView, int position) {
+	private void drawCustomHover(Canvas c, RecyclerView parent, int top, int bottom, int position) {
 
 		if (this.holder != null) {
-			int top = childView.getTop() - builder.decorationHeight;
 			builder.viewModel.bindView(holder.itemView, position);
 			c.save();
 			c.translate(0, top);
@@ -336,11 +337,11 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 				flag = true;
 			}
 		}
+		int top = parent.getPaddingTop();
+		int bottom = top + builder.decorationHeight;
 		if (getType() == Type.CUSTOM_HOVER) {
-			drawCustomHover(c, parent, child, position);
+			drawCustomHover(c, parent, top, bottom, position);
 		} else {
-			int top = parent.getPaddingTop();
-			int bottom = top + builder.decorationHeight;
 			drawTextHover(c, parent, top, bottom, position);
 		}
 		if (flag) {

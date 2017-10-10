@@ -1,11 +1,13 @@
 package com.sundae.zl.mkitemdecoration;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -163,6 +165,7 @@ public class SampleActivity extends AppCompatActivity {
 		recyclerView = (RecyclerView) findViewById(R.id.sample_rv);
 		recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 		final Adapter adapter = new Adapter(listData());
+		DemoVM demoVM = new DemoVM(this,adapter.data, R.layout.demo_vm_layout);
 		recyclerView.addItemDecoration(new MKItemDecoration.Builder()
 				.height(50)
 				.color(Color.parseColor("#525D97"))
@@ -180,6 +183,7 @@ public class SampleActivity extends AppCompatActivity {
 						return adapter.data.get(4 * (position / 4));
 					}
 				})
+				.viewModel(demoVM)
 				.textAlign(MKItemDecoration.Builder.ALIGN_MIDDLE)
 				.build());
 
@@ -211,5 +215,22 @@ public class SampleActivity extends AppCompatActivity {
 			data.add("item#" + i);
 		}
 		return data;
+	}
+
+	class DemoVM extends AbstractViewModel<String>{
+		public DemoVM(List<String> data, View view) {
+			super(data, view);
+		}
+
+		public DemoVM(Context context, List<String> data, @LayoutRes int resId) {
+			super(context, data, resId);
+		}
+
+		@Override
+		public void bindView(View view, int position) {
+			TextView textView = (TextView) view.findViewById(R.id.demo_vm);
+			textView.setText(data.get(position));
+
+		}
 	}
 }
