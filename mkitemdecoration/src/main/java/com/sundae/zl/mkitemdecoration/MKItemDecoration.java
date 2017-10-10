@@ -231,7 +231,9 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 			// 分组时，在item顶部绘制
 			if (builder.iHover.isGroup(position)) {
 				// 绘制颜色背景
-				drawTextHover(c, parent, childView, position);
+				int bottom = childView.getTop();
+				int top = bottom - builder.decorationHeight;
+				drawTextHover(c, parent, top, bottom, position);
 			}
 		}
 	}
@@ -271,15 +273,11 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 		}
 	}
 
-	private void drawTextHover(Canvas c, RecyclerView parent, View childView, int position) {
-		int bottom;
+	private void drawTextHover(Canvas c, RecyclerView parent, int top, int bottom, int position) {
 		final int left = parent.getPaddingLeft();
 		final int right = parent.getWidth() - parent.getPaddingRight();
-		int top;
 		int baseLine;
 		int textLeft;
-		bottom = childView.getTop();
-		top = bottom - builder.decorationHeight;
 		mDivider.setBounds(left, top, right, bottom);
 		mDivider.draw(c);
 
@@ -341,7 +339,9 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 		if (getType() == Type.CUSTOM_HOVER) {
 			drawCustomHover(c, parent, child, position);
 		} else {
-			drawTextHover(c, parent, child, position);
+			int top = parent.getPaddingTop();
+			int bottom = top + builder.decorationHeight;
+			drawTextHover(c, parent, top, bottom, position);
 		}
 		if (flag) {
 			c.restore();
