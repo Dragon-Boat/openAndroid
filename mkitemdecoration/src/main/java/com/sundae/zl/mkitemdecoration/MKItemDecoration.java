@@ -12,8 +12,12 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by @author hzzhoulong
@@ -23,15 +27,12 @@ import android.view.ViewGroup;
 
 public class MKItemDecoration extends RecyclerView.ItemDecoration {
 
+	Map<Integer, VHolder> vHolderMap = new HashMap<>();
 	private Drawable mDivider;
-
 	private TextPaint textPaint;
-
 	private Builder builder;
 
-	private VHolder holder;
-
-	public MKItemDecoration(@NonNull Builder builder) {
+	private MKItemDecoration(@NonNull Builder builder) {
 		this.builder = builder;
 		textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
 		if (builder.drawable != null) {
@@ -144,7 +145,7 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 
 	}
 
-	class VHolder extends RecyclerView.ViewHolder {
+	static class VHolder extends RecyclerView.ViewHolder {
 
 		private SparseArray<View> views;
 
@@ -213,7 +214,7 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 			}
 			if (builder.iHover.isGroup(position)) {
 				int top = childView.getTop() - builder.decorationHeight;
-				int bottom = 0;
+				int bottom = childView.getTop();
 				drawCustomHover(c, parent, top, bottom, position);
 			}
 		}
@@ -264,14 +265,15 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 	}
 
 	private void drawCustomHover(Canvas c, RecyclerView parent, int top, int bottom, int position) {
-
-		if (this.holder != null) {
-			builder.viewModel.bindView(holder.itemView, position);
-			c.save();
-			c.translate(0, top);
-			holder.itemView.draw(c);
-			c.restore();
+//		builder.viewModel.bindView(holder, position);
+		c.save();
+		c.translate(0, top);
+		VHolder vHolder = vHolderMap.get(position);
+		if (vHolder != null) {
+			vHolder.getRootView().draw(c);
 		}
+//		holder.getRootView().draw(c);
+		c.restore();
 	}
 
 	private void drawTextHover(Canvas c, RecyclerView parent, int top, int bottom, int position) {
@@ -350,6 +352,7 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 	}
 
 	@Override
+
 	public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
 		super.getItemOffsets(outRect, view, parent, state);
 		int pos = parent.getChildAdapterPosition(view);
@@ -361,15 +364,13 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 			return;
 		}
 		if (getType() == Type.CUSTOM_HOVER) {
+			if (vHolderMap.get(pos) == null) {
+				VHolder holder = createVH(parent, builder, pos);
+				vHolderMap.put(pos, holder);
+			}
+
 			if (builder.iHover.isGroup(pos)) {
-				if (holder == null) {
-					holder = createVH(parent, builder.viewModel.view);
-				}
-				if (builder.decorationHeight > 0) {
-					outRect.set(0, builder.decorationHeight, 0, 0);
-				} else {
-					outRect.set(0, builder.viewModel.view.getHeight(), 0, 0);
-				}
+				outRect.set(0, builder.decorationHeight, 0, 0);
 			}
 			return;
 		}
@@ -382,7 +383,9 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 
 	}
 
-	private VHolder createVH(RecyclerView parent, View view) {
+	private VHolder createVH(RecyclerView parent, Builder builder, int pos) {
+
+		View view = LayoutInflater.from(parent.getContext()).inflate(builder.viewModel.layoutId, parent, false);
 
 		int toDrawWidthSpec;//用于测量的widthMeasureSpec
 		int toDrawHeightSpec;//用于测量的heightMeasureSpec
@@ -412,9 +415,12 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 		} else {
 			toDrawHeightSpec = View.MeasureSpec.makeMeasureSpec(lp.height, View.MeasureSpec.EXACTLY);
 		}
-		view.measure(toDrawWidthSpec, toDrawHeightSpec);
-		view.layout(parent.getPaddingLeft(), parent.getPaddingTop(), parent.getPaddingLeft() + view.getMeasuredWidth(), parent.getPaddingTop() + view.getMeasuredHeight());
 		VHolder vHolder = new VHolder(view);
+		builder.viewModel.bindView(vHolder, pos);
+
+		view.measure(toDrawWidthSpec, toDrawHeightSpec);
+		view.layout(parent.getPaddingLeft(), parent.getPaddingTop(), parent.getPaddingLeft() + view.getMeasuredWidth(),
+				parent.getPaddingTop() + view.getMeasuredHeight());
 		builder.decorationHeight = view.getMeasuredHeight();
 		return vHolder;
 	}

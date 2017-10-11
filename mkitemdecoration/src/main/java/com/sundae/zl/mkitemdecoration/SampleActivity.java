@@ -163,7 +163,7 @@ public class SampleActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sample);
 		recyclerView = (RecyclerView) findViewById(R.id.sample_rv);
-		recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 		final Adapter adapter = new Adapter(listData());
 		DemoVM demoVM = new DemoVM(this,adapter.data, R.layout.demo_vm_layout);
 		recyclerView.addItemDecoration(new MKItemDecoration.Builder()
@@ -218,19 +218,17 @@ public class SampleActivity extends AppCompatActivity {
 	}
 
 	class DemoVM extends AbstractViewModel<String>{
-		public DemoVM(List<String> data, View view) {
-			super(data, view);
-		}
 
 		public DemoVM(Context context, List<String> data, @LayoutRes int resId) {
 			super(context, data, resId);
 		}
 
 		@Override
-		public void bindView(View view, int position) {
-			TextView textView = (TextView) view.findViewById(R.id.demo_vm);
-			textView.setText(data.get(position));
-
+		public void bindView(MKItemDecoration.VHolder holder, int position) {
+			TextView textView = holder.getView(R.id.demo_vm);
+			textView.setText(data.get(4*(position/4)));
+//			TextView textView2 = holder.getView(R.id.demo_vm2);
+//			textView2.setText(data.get(4 * (position) / 4));
 		}
 	}
 }

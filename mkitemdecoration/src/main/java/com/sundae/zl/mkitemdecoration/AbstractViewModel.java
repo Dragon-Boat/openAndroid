@@ -2,9 +2,6 @@ package com.sundae.zl.mkitemdecoration;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;
-import android.util.SparseArray;
-import android.view.LayoutInflater;
-import android.view.View;
 
 import java.util.List;
 /**
@@ -16,17 +13,12 @@ import java.util.List;
 public abstract class AbstractViewModel<T> {
 
 	List<T> data;
-	View view;
-
-	public AbstractViewModel(List<T> data, View view) {
-		this.data = data;
-		this.view = view;
-	}
+	int layoutId;
 
 	public AbstractViewModel(Context context, List<T> data, @LayoutRes int resId) {
 		this.data = data;
-		this.view = LayoutInflater.from(context).inflate(resId, null, false);
+		this.layoutId = resId;
 	}
 
-	public abstract void bindView(View view, int position);
+	public abstract void bindView(MKItemDecoration.VHolder view, int position);
 }
