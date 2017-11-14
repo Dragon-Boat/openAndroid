@@ -1,11 +1,7 @@
 package com.sundae.zl.mkitemdecoration;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v7.app.AppCompatActivity;
@@ -13,8 +9,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -22,103 +21,11 @@ import java.util.List;
 
 public class SampleActivity extends AppCompatActivity {
 	RecyclerView recyclerView;
-	int mSize = 25;
-	int baseIndex = 0;
-
-
-
-	private class SampleItemDecoration extends RecyclerView.ItemDecoration {
-
-		private Drawable divider;
-		public SampleItemDecoration() {
-			super();
-			divider = new ColorDrawable(Color.parseColor("#525D97"));
-		}
-
-		@Override
-		public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-//			int left;
-//			int right;
-//			int top;
-//			int bottom;
-//
-//			final int childCount = parent.getChildCount();
-//			for (int i = 0; i < childCount; i++) {
-//				final View view = parent.getChildAt(i);
-//				int pos = parent.getChildAdapterPosition(view);
-////				if (pos < baseIndex || pos == parent.getAdapter().getItemCount()-1) {
-////					continue;
-////				}
-//
-//				top = view.getBottom();
-//				left = view.getPaddingLeft() + mSize;
-//				right = view.getWidth() - view.getPaddingRight() - mSize ;
-//				bottom = top + mSize;
-//				divider.setBounds(left, top, right, bottom);
-//				Log.d("sample", divider.getBounds().flattenToString());
-//				divider.draw(c);
-//			}
-
-		}
-
-		@Override
-		public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-
-			int left;
-			int right;
-			int top;
-			int bottom;
-
-			final int childCount = parent.getChildCount();
-			for (int i = 0; i < childCount; i++) {
-				final View view = parent.getChildAt(i);
-				int pos = parent.getChildAdapterPosition(view);
-//				if (pos < baseIndex || pos == parent.getAdapter().getItemCount()-1) {
-//					continue;
-//				}
-
-				top = view.getBottom();
-				left = view.getPaddingLeft() + mSize;
-				right = view.getWidth() - view.getPaddingRight() - mSize ;
-				bottom = top + mSize;
-				divider.setBounds(left, top, right, bottom);
-				Log.d("sample", divider.getBounds().flattenToString());
-				divider.draw(c);
-			}
-
-//			int left;
-//			int right;
-//			int top;
-//			int bottom;
-//			left = parent.getPaddingLeft();
-//			right = parent.getWidth() - parent.getPaddingRight();
-//			top = parent.getPaddingTop();
-//			bottom = top + mSize;
-//
-//
-//			LinearLayoutManager lm = ((LinearLayoutManager) parent.getLayoutManager());
-//			int firstViewPos = lm.findFirstVisibleItemPosition();
-//			RecyclerView.ViewHolder firstView = parent.findViewHolderForLayoutPosition(firstViewPos);
-//			int dy = firstView.itemView.getTop()-mSize*2 ;
-//			boolean  flag = false;
-//			if (dy <= 0) {
-//				c.save();
-//				c.translate(0, dy);
-//				flag = true;
-//			}
-//			divider.setBounds(left, top, right, bottom);
-//			divider.draw(c);
-//			if (flag) {
-//				c.restore();
-//			}
-
-		}
-
-		@Override
-		public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-			outRect.set(50, 50, 50, 50);
-		}
-	}
+	Adapter adapter;
+	DemoVM demoVM;
+	Button left, middle, right;
+	ViewGroup viewGroup;
+	MKItemDecoration itemDecoration;
 
 	private class Adapter extends RecyclerView.Adapter {
 		List<String> data;
@@ -158,51 +65,156 @@ public class SampleActivity extends AppCompatActivity {
 		}
 	}
 
+	class DemoVM extends AbstractViewModel<String> {
+
+		public DemoVM(Context context, List<String> data, @LayoutRes int resId) {
+			super(context, data, resId);
+		}
+
+		@Override
+		public void bindView(MKItemDecoration.VHolder holder, final int position) {
+			TextView textView = holder.getView(R.id.demo_vm);
+			textView.setText(data.get(4 * (position / 4)));
+			TextView textView2 = holder.getView(R.id.tv2);
+			textView2.setText(data.get(4 * (position / 4)));
+			TextView textView3 = holder.getView(R.id.tv3);
+			textView3.setText(data.get(position));
+
+
+			holder.getRootView().setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Log.d("simpleActivity", "onClick: ");
+				}
+			});
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.option, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.id_color_divider:
+				MKItemDecoration decoration = new MKItemDecoration.Builder()
+						.height(50)
+						.color(Color.parseColor("#525D97"))
+						.textSize(30)
+						.textColor(Color.WHITE)
+						.itemOffset(3)
+						.build();
+				if (itemDecoration != null) {
+					recyclerView.removeItemDecoration(itemDecoration);
+
+				}
+				viewGroup.setVisibility(View.GONE);
+				itemDecoration = decoration;
+				recyclerView.addItemDecoration(itemDecoration);
+
+				break;
+			case R.id.id_text_hover:
+				viewGroup.setVisibility(View.VISIBLE);
+
+				MKItemDecoration decoration2 = new MKItemDecoration.Builder()
+						.height(50)
+						.color(Color.parseColor("#525D97"))
+						.textSize(30)
+						.textColor(Color.WHITE)
+						.itemOffset(0)
+						.iHover(new IHover() {
+							@Override
+							public boolean isGroup(int position) {
+								return position % 4 == 0;
+							}
+
+							@Override
+							public String groupText(int position) {
+								return adapter.data.get(4 * (position / 4));
+							}
+						})
+						.textAlign(MKItemDecoration.Builder.ALIGN_MIDDLE)
+						.build();
+				if (itemDecoration != null) {
+					recyclerView.removeItemDecoration(itemDecoration);
+
+				}
+				itemDecoration = decoration2;
+				recyclerView.addItemDecoration(itemDecoration);
+				break;
+			case R.id.id_custom_hover:
+				viewGroup.setVisibility(View.GONE);
+
+				MKItemDecoration decoration3 = new MKItemDecoration.Builder()
+						.height(50)
+						.color(Color.parseColor("#525D97"))
+						.textSize(30)
+						.textColor(Color.WHITE)
+						.itemOffset(0)
+						.iHover(new IHover() {
+							@Override
+							public boolean isGroup(int position) {
+								return position % 4 == 0;
+							}
+
+							@Override
+							public String groupText(int position) {
+								return adapter.data.get(4 * (position / 4));
+							}
+						})
+						.viewModel(demoVM)
+						.textAlign(MKItemDecoration.Builder.ALIGN_MIDDLE)
+						.build();
+				if (itemDecoration != null) {
+					recyclerView.removeItemDecoration(itemDecoration);
+
+				}
+				itemDecoration = decoration3;
+				recyclerView.addItemDecoration(itemDecoration);
+				break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sample);
 		recyclerView = (RecyclerView) findViewById(R.id.sample_rv);
+		left = (Button) findViewById(R.id.left);
+		middle = (Button) findViewById(R.id.middle_btn);
+		right = (Button) findViewById(R.id.right);
+		viewGroup = (ViewGroup) findViewById(R.id.text_control);
+
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
-		final Adapter adapter = new Adapter(listData());
-		DemoVM demoVM = new DemoVM(this,adapter.data, R.layout.demo_vm_layout);
-		recyclerView.addItemDecoration(new MKItemDecoration.Builder()
-				.height(50)
-				.color(Color.parseColor("#525D97"))
-				.textSize(30)
-				.textColor(Color.WHITE)
-				.itemOffset(0)
-				.iHover(new IHover() {
-					@Override
-					public boolean isGroup(int position) {
-						return position % 4 == 0;
-					}
-
-					@Override
-					public String groupText(int position) {
-						return adapter.data.get(4 * (position / 4));
-					}
-				})
-				.viewModel(demoVM)
-				.textAlign(MKItemDecoration.Builder.ALIGN_MIDDLE)
-				.build());
-
-
-
+		adapter = new Adapter(listData());
+		demoVM = new DemoVM(this, adapter.data, R.layout.demo_vm_layout);
 		recyclerView.setAdapter(adapter);
 
-		findViewById(R.id.rect_dec).setOnClickListener(new View.OnClickListener() {
+		left.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mSize-=10;
-				adapter.notifyDataSetChanged();
+				itemDecoration.getBuilder().textAlign(MKItemDecoration.Builder.ALIGN_LEFT);
+				recyclerView.invalidate();
 			}
 		});
-		findViewById(R.id.rect_inc).setOnClickListener(new View.OnClickListener() {
+
+		right.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mSize+=10;
-				adapter.notifyDataSetChanged();
+				itemDecoration.getBuilder().textAlign(MKItemDecoration.Builder.ALIGN_RIGHT);
+				recyclerView.invalidate();
+			}
+		});
+
+		middle.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				itemDecoration.getBuilder().textAlign(MKItemDecoration.Builder.ALIGN_MIDDLE);
+				recyclerView.invalidate();
 			}
 		});
 
@@ -215,20 +227,5 @@ public class SampleActivity extends AppCompatActivity {
 			data.add("item#" + i);
 		}
 		return data;
-	}
-
-	class DemoVM extends AbstractViewModel<String>{
-
-		public DemoVM(Context context, List<String> data, @LayoutRes int resId) {
-			super(context, data, resId);
-		}
-
-		@Override
-		public void bindView(MKItemDecoration.VHolder holder, int position) {
-			TextView textView = holder.getView(R.id.demo_vm);
-			textView.setText(data.get(4*(position/4)));
-//			TextView textView2 = holder.getView(R.id.demo_vm2);
-//			textView2.setText(data.get(4 * (position) / 4));
-		}
 	}
 }

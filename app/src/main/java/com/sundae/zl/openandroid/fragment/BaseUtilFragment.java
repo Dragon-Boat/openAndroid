@@ -1,7 +1,9 @@
 package com.sundae.zl.openandroid.fragment;
 
+import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 /**
  * Created by @author hzzhoulong
@@ -10,6 +12,12 @@ import android.view.View;
  */
 
 public class BaseUtilFragment extends BaseFragment {
+	@Override
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		view.setClickable(true);
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T extends View> T $(@NonNull View container, @IdRes int resId) {
 		return (T) container.findViewById(resId);

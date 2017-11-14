@@ -56,9 +56,15 @@
 				/>
 
 			<Button
-				android:id="@+id/BitmapDemo"
+				android:id="@+id/SimilarPicDemo"
 				style="@style/normal_button"
-				android:text="Location"
+				android:text="SimilarPicDemo"
+				/>
+
+			<Button
+				android:id="@+id/ScanViewDemo"
+				style="@style/normal_button"
+				android:text="ScanViewDemo"
 				/>
 
 

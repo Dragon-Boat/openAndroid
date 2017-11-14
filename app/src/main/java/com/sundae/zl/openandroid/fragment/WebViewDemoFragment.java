@@ -71,7 +71,7 @@ public class WebViewDemoFragment extends BaseUtilFragment {
 		webView = $(view, R.id.web_view);
 		initWebView(webView);
 
-		webView.loadUrl("file:///android_asset/test.html");
+		webView.loadUrl("http://www.baidu.com");
 
 		$(view, R.id.tell_js_btn).setOnClickListener(new View.OnClickListener() {
 			@Override

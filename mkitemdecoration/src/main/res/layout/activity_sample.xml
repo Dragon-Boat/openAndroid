@@ -9,37 +9,37 @@
 	tools:context="com.sundae.zl.mkitemdecoration.SampleActivity">
 
 	<LinearLayout
+		android:visibility="gone"
+		android:id="@+id/text_control"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal">
 
-		<TextView
-			android:id="@+id/rect_tv"
+		<Button
+			android:id="@+id/left"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center_horizontal"
 			android:layout_weight="1"
-			android:gravity="center"
-			android:text="@string/app_name"/>
+			android:text="align_left"/>
 
 		<Button
-			android:id="@+id/rect_dec"
+			android:id="@+id/middle_btn"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="-1"/>
+			android:text="align_middle"/>
 
 		<Button
-			android:id="@+id/rect_inc"
+			android:id="@+id/right"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="+1"/>
+			android:text="align_right"/>
 	</LinearLayout>
-
 
 	<android.support.v7.widget.RecyclerView
 		android:id="@+id/sample_rv"
+		android:layout_margin="15dp"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 

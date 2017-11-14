@@ -32,6 +32,10 @@ public class MKItemDecoration extends RecyclerView.ItemDecoration {
 	private TextPaint textPaint;
 	private Builder builder;
 
+	public Builder getBuilder() {
+		return builder;
+	}
+
 	private MKItemDecoration(@NonNull Builder builder) {
 		this.builder = builder;
 		textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);

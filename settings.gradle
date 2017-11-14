@@ -1,1 +1,1 @@
-include ':app', ':mkitemdecoration'
+include ':app', ':mkitemdecoration', ':my_annotation', ':my_annotation', ':lib'
